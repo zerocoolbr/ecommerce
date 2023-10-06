@@ -1,3 +1,4 @@
+import { LessThanOrEqual, MoreThanOrEqual, And, Between, ILike, FindOperator } from "typeorm";
 import { database } from "../db"
 import { Product } from "./product.model"
 
@@ -35,9 +36,36 @@ export const listProducts = async () => {
   return await productRepository.find();
 }
 
-export const productsPaginated = async (page: number, offset: number) => {
+export const productsPaginated = async (
+  page: number,
+  offset: number,
+  minPrice: number,
+  maxPrice: number,
+  title: string
+) => {
+
+  let priceFilter: undefined | FindOperator<number> = undefined
+
+  if (!Number.isNaN(minPrice) && !Number.isNaN(maxPrice)) {
+    priceFilter = Between(minPrice, maxPrice)
+  } else if (!Number.isNaN(minPrice)) {
+    priceFilter = MoreThanOrEqual(minPrice)
+  } else if (!Number.isNaN(maxPrice)) {
+    priceFilter = LessThanOrEqual(maxPrice)
+  }
+
+  let titleFilter: undefined | FindOperator<string> = undefined;
+
+  if (title !== undefined) {
+    titleFilter = ILike(`%${title}%`)
+  }
+
   return await productRepository.findAndCount({
     take: offset,
-    skip: (page-1) * offset
+    skip: (page - 1) * offset,
+    where: {
+      price: priceFilter,
+      title: titleFilter
+    }
   })
 }
