@@ -45,7 +45,7 @@ productsRouter.delete('/products/:id', async (req: Request, res: Response) => {
 
   await deleteProduct(productId)
 
-  res.status(204)
+  res.sendStatus(204)
 });
 
 productsRouter.get('/products/:id', async (req: Request, res: Response) => {
