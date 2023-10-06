@@ -1,51 +1,56 @@
-import { Request, Response, Router } from 'express'
-import { database } from '../db';
-import { User } from './user.model';
+import { Request, Response, Router } from 'express';
+import { deleteUser, getUser, insertUser, listUsers, updateUser } from './users.repository';
 
 export const usersRouter = Router();
 
-const userRepository = database.getRepository(User)
-
-usersRouter.post('/users', (req: Request, res: Response) => {
-  const data = req.body;
-  const newUser = {
-    ...data,
-    created_at: new Date(),
-    updated_at: new Date(),
-  };
-  userRepository.insert(newUser)
+usersRouter.post('/users', async (req: Request, res: Response) => {
+  const user = req.body;
+  await insertUser(user);
   res.sendStatus(201);
 });
 
 usersRouter.put('/users/:id', async (req: Request, res: Response) => {
   const userId = Number(req.params.id);
-  const dataToUpdate = req.body;
+  const userData = req.body;
 
-  await userRepository.update(userId, dataToUpdate)
+  const user = await getUser(userId);
 
+  if (!user) {
+    return res.sendStatus(404);
+  }
+
+  await updateUser(userId, userData);
   res.sendStatus(204);
 });
 
-
 usersRouter.delete('/users/:id', async (req: Request, res: Response) => {
   const userId = Number(req.params.id);
-  await userRepository.delete(userId)
 
-  res.status(204)
+  const user = await getUser(userId);
+
+  if (!user) {
+    return res.sendStatus(404);
+  }
+
+  await deleteUser(userId);
+  res.status(204);
 });
 
 usersRouter.get('/users', async (req: Request, res: Response) => {
-  const users = await userRepository.find();
+  const users = await listUsers();
+
   res.status(200).json({
     data: users,
   });
 });
 
 usersRouter.get('/users/:id', async (req: Request, res: Response) => {
-  const user = await userRepository.findOne({
-    where: {
-      id: Number(req.params.id)
-    }
-  })
+  const userId = Number(req.params.id);
+  const user = await getUser(userId);
+
+  if (!user) {
+    return res.sendStatus(404);
+  }
+
   res.status(200).json(user);
 });
