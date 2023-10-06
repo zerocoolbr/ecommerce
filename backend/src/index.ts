@@ -1,13 +1,13 @@
 import "reflect-metadata"
 import express, { Request, Response } from 'express'
-import { productsRouter } from './products/products.routes'
+import { usersRouter } from "./users/users.routes"
 import { database } from "./db"
 
 const app = express()
 const port = 3000
 
 app.use(express.json())
-app.use(productsRouter)
+app.use(usersRouter)
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello World!')

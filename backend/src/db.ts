@@ -1,11 +1,11 @@
 import "reflect-metadata"
 import { DataSource } from "typeorm"
-import { Product } from "./products/product.model"
+import { User } from "./users/user.model"
 import dotenv from 'dotenv'
 
 dotenv.config();
 
-let { PGHOST, PGDATABASE, PGUSER, PGPASSWORD } = process.env;
+const { PGHOST, PGDATABASE, PGUSER, PGPASSWORD } = process.env;
 
 export const database = new DataSource({
     type: "postgres",
@@ -14,7 +14,7 @@ export const database = new DataSource({
     username: PGUSER,
     password: PGPASSWORD,
     database: PGDATABASE,
-    entities: [Product],
+    entities: [User],
     synchronize: true,
     logging: false,
     ssl: true,
