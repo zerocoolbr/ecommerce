@@ -40,3 +40,12 @@ usersRouter.get('/users', async (req: Request, res: Response) => {
     data: users,
   });
 });
+
+usersRouter.get('/users/:id', async (req: Request, res: Response) => {
+  const user = await userRepository.findOne({
+    where: {
+      id: Number(req.params.id)
+    }
+  })
+  res.status(200).json(user);
+});
