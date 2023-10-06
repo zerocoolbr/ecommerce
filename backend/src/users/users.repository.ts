@@ -1,3 +1,4 @@
+import { FindOperator, ILike } from "typeorm";
 import { database } from "../db";
 import { User } from "./user.model";
 
@@ -34,4 +35,20 @@ export const getUser = async (id: number) => {
 
 export const listUsers = async () => {
   return await userRepository.find();
+};
+
+export const usersPaginated = async (page: number, offset: number, firstName: string) => {
+  let firstNameFilter: undefined | FindOperator<string> = undefined;
+
+  if (firstName !== undefined) {
+    firstNameFilter = ILike(`%${firstName}%`)
+  }
+
+  return await userRepository.findAndCount({
+    take: offset,
+    skip: (page - 1) * offset,
+    where: {
+      first_name: firstNameFilter
+    }
+  })
 };

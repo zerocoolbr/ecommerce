@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { deleteUser, getUser, insertUser, listUsers, updateUser } from './users.repository';
+import { deleteUser, getUser, insertUser, listUsers, updateUser, usersPaginated } from './users.repository';
 import { validationSchemaMiddleware } from '../middleware';
 import { createUserSchema, updateUserSchema } from './users.schema';
 
@@ -45,10 +45,17 @@ usersRouter.delete('/users/:id', async (req: Request, res: Response) => {
 });
 
 usersRouter.get('/users', async (req: Request, res: Response) => {
-  const users = await listUsers();
+  const page = Number(req.query.page) || 1;
+  const offset = Number(req.query.offset) || 3;
+  const firstName = req.query.firstName as string;
+
+  const [users, count] = await usersPaginated(page, offset, firstName);
 
   res.status(200).json({
     data: users,
+    page,
+    count,
+    hasNextPage: page * offset < count
   });
 });
 
