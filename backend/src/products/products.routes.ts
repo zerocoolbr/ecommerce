@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express'
-import { deleteProduct, getProduct, insertProduct, listProducts, updateProduct } from './products.repository';
+import { deleteProduct, getProduct, insertProduct, productsPaginated, updateProduct } from './products.repository';
 import { createProductSchema, updateProductSchema } from './products.schema';
 import { validationSchemaMiddleware } from '../middleware';
 
@@ -60,14 +60,14 @@ productsRouter.get('/products/:id', async (req: Request, res: Response) => {
 });
 
 productsRouter.get('/products', async (req: Request, res: Response) => {
-  const products = await listProducts();
+  const page = Number(req.query.page);
+  const offset = Number(req.query.offset);
+
+  const [products, count] = await productsPaginated(page, offset);
 
   res.status(200).json({
     data: products,
-    page: 1,
-    nextPage: 2,
-    previousPage: null,
-    hasNextPage: true,
-    hasPreviousPage: false
+    page,
+    hasNextPage: page * offset < count,
   });
 });

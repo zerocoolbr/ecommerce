@@ -34,3 +34,10 @@ export const getProduct = async (id: number) => {
 export const listProducts = async () => {
   return await productRepository.find();
 }
+
+export const productsPaginated = async (page: number, offset: number) => {
+  return await productRepository.findAndCount({
+    take: offset,
+    skip: (page-1) * offset
+  })
+}
