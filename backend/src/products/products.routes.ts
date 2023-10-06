@@ -1,28 +1,22 @@
 import { Request, Response, Router } from 'express'
-import { database } from '../db';
-import { Product } from './product.model';
+import { deleteProduct, getProduct, insertProduct, listProducts, updateProduct } from './products.repository';
 
 export const productsRouter = Router();
 
-const productRepository = database.getRepository(Product)
+productsRouter.post('/products', async (req: Request, res: Response) => {
+  const product = req.body;
 
-productsRouter.post('/products', (req: Request, res: Response) => {
-  const data = req.body;
-  const newProduct = {
-    ...data,
-    created_at: new Date(),
-    updated_at: new Date(),
-  };
-  productRepository.insert(newProduct)
+  await insertProduct(product);
+
   res.sendStatus(201);
 });
 
 productsRouter.put('/products/:id', async (req: Request, res: Response) => {
 
   const productId = Number(req.params.id);
-  const dataToUpdate = req.body;
+  const productData = req.body;
 
-  await productRepository.update(productId, dataToUpdate)
+  await updateProduct(productId, productData)
 
   res.sendStatus(204);
 });
@@ -30,22 +24,22 @@ productsRouter.put('/products/:id', async (req: Request, res: Response) => {
 
 productsRouter.delete('/products/:id', async (req: Request, res: Response) => {
   const productId = Number(req.params.id);
-  await productRepository.delete(productId)
+
+  await deleteProduct(productId)
 
   res.status(204)
 });
 
 productsRouter.get('/products/:id', async (req: Request, res: Response) => {
-  const product = await productRepository.findOne({
-    where: {
-      id: Number(req.params.id)
-    }
-  })
+  const productId = Number(req.params.id);
+  const product = await getProduct(productId)
+
   res.status(200).json(product);
 });
 
 productsRouter.get('/products', async (req: Request, res: Response) => {
-  const products = await productRepository.find();
+  const products = await listProducts();
+
   res.status(200).json({
     data: products,
     page: 1,
