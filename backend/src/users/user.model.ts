@@ -14,8 +14,8 @@ export class User {
   @Column("text")
   email: string;
 
-  @Column("decimal")
-  password: number;
+  @Column("text")
+  password: string;
 
   @Column("text")
   cpf: string;

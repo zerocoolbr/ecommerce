@@ -25,10 +25,18 @@ export const deleteUser = async (id: number) => {
   await userRepository.delete(id);
 };
 
-export const getUser = async (id: number) => {
+export const getUserById = async (id: number) => {
   return await userRepository.findOne({
     where: {
       id
+    }
+  });
+};
+
+export const getUserByEmail = async (email: string) => {
+  return await userRepository.findOne({
+    where: {
+      email
     }
   });
 };

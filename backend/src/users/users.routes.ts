@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
-import { deleteUser, getUser, insertUser, listUsers, updateUser, usersPaginated } from './users.repository';
-import { validationSchemaMiddleware } from '../middleware';
+import { deleteUser, getUserById, insertUser, updateUser, usersPaginated } from './users.repository';
+import { authMiddleware, validationSchemaMiddleware } from '../middleware';
 import { createUserSchema, updateUserSchema } from './users.schema';
 
 export const usersRouter = Router();
@@ -21,7 +21,7 @@ usersRouter.put(
     const userId = Number(req.params.id);
     const userData = req.body;
 
-    const user = await getUser(userId);
+    const user = await getUserById(userId);
 
     if (!user) {
       return res.sendStatus(404);
@@ -31,17 +31,24 @@ usersRouter.put(
     res.sendStatus(204);
 });
 
-usersRouter.delete('/users/:id', async (req: Request, res: Response) => {
+usersRouter.delete('/users/:id', authMiddleware(), async (req: Request, res: Response) => {
   const userId = Number(req.params.id);
+  const tokenData = req.get('token-data') as any;
 
-  const user = await getUser(userId);
+  if (tokenData.id !== userId) {
+    return res.sendStatus(403)
+  }
+
+  const user = await getUserById(userId);
 
   if (!user) {
     return res.sendStatus(404);
   }
 
   await deleteUser(userId);
-  res.sendStatus(204);
+
+  return res.sendStatus(204);
+
 });
 
 usersRouter.get('/users', async (req: Request, res: Response) => {
@@ -61,7 +68,7 @@ usersRouter.get('/users', async (req: Request, res: Response) => {
 
 usersRouter.get('/users/:id', async (req: Request, res: Response) => {
   const userId = Number(req.params.id);
-  const user = await getUser(userId);
+  const user = await getUserById(userId);
 
   if (!user) {
     return res.sendStatus(404);
