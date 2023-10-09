@@ -22,7 +22,7 @@ usersRouter.post(
 
     await insertUser({
       ...user,
-      password: bcrypt.hashSync(user.password, 10)
+      password: bcrypt.hashSync(user.password, Number(process.env.HASH_SALT))
     });
     res.sendStatus(201);
 });
@@ -61,7 +61,7 @@ usersRouter.put(
     if (userData.password) {
       userData = {
         ...userData,
-        password: bcrypt.hashSync(userData.password,10)
+        password: bcrypt.hashSync(userData.password, Number(process.env.HASH_SALT))
       }
     }
 

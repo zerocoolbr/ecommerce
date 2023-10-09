@@ -1,12 +1,9 @@
 import "reflect-metadata"
 import { DataSource } from "typeorm"
 import { User } from "./users/user.model"
-import dotenv from 'dotenv'
 import { Product } from "./products/product.model";
 import { AlterPasswordType1696790917511 } from "./migrations/1696790917511-alter-password-type";
 import { AddUniqueConstraintOnUserEmail1696874415519 } from "./migrations/1696874415519-AddUniqueConstraintOnUserEmail";
-
-dotenv.config();
 
 const { PGHOST, PGDATABASE, PGUSER, PGPASSWORD } = process.env;
 

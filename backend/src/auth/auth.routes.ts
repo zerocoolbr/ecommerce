@@ -29,8 +29,8 @@ authRouter.post(
       firstName: user.first_name,
       lastName: user.last_name,
       email: user.email
-    }, 'abc', {
-      expiresIn: '1d'
+    }, process.env.TOKEN_SECRET as string, {
+      expiresIn: process.env.TOKEN_EXPIRATION
     })
 
     return res.status(200).json(token);
