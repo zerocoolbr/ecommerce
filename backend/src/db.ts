@@ -4,6 +4,7 @@ import { User } from "./users/user.model"
 import dotenv from 'dotenv'
 import { Product } from "./products/product.model";
 import { AlterPasswordType1696790917511 } from "./migrations/1696790917511-alter-password-type";
+import { AddUniqueConstraintOnUserEmail1696874415519 } from "./migrations/1696874415519-AddUniqueConstraintOnUserEmail";
 
 dotenv.config();
 
@@ -20,5 +21,5 @@ export const database = new DataSource({
     synchronize: true,
     logging: false,
     ssl: true,
-    migrations: [AlterPasswordType1696790917511]
+    migrations: [AlterPasswordType1696790917511, AddUniqueConstraintOnUserEmail1696874415519]
 })
