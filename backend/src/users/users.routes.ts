@@ -16,10 +16,16 @@ usersRouter.post(
 
 usersRouter.put(
   '/users/:id',
+  authMiddleware(),
   validationSchemaMiddleware(updateUserSchema),
-  async (req: Request, res: Response) => {
+    async (req: Request, res: Response) => {
     const userId = Number(req.params.id);
     const userData = req.body;
+    const tokenData = req.get('token-data') as any;
+
+    if (tokenData.id !== userId) {
+      return res.sendStatus(403)
+    }
 
     const user = await getUserById(userId);
 
@@ -66,9 +72,14 @@ usersRouter.get('/users', async (req: Request, res: Response) => {
   });
 });
 
-usersRouter.get('/users/:id', async (req: Request, res: Response) => {
+usersRouter.get('/users/:id', authMiddleware(), async (req: Request, res: Response) => {
   const userId = Number(req.params.id);
+  const tokenData = req.get('token-data') as any;
   const user = await getUserById(userId);
+
+  if (tokenData.id !== userId) {
+    return res.sendStatus(403)
+  }
 
   if (!user) {
     return res.sendStatus(404);
