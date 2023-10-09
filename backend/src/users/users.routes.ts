@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import bcrypt from 'bcrypt';
-import { deleteUser, getUserById, insertUser, updateUser, usersPaginated } from './users.repository';
+import { deleteUser, getUserByEmail, getUserById, insertUser, updateUser, usersPaginated } from './users.repository';
 import { authMiddleware, validationSchemaMiddleware } from '../middleware';
 import { createUserSchema, updateUserSchema } from './users.schema';
 
@@ -11,6 +11,15 @@ usersRouter.post(
   validationSchemaMiddleware(createUserSchema),
   async (req: Request, res: Response) => {
     const user = req.body;
+
+    const userAlreadyExists = await getUserByEmail(user.email);
+
+    if (userAlreadyExists) {
+      return res.status(400).json({
+        message: 'Email already exists'
+      })
+    }
+
     await insertUser({
       ...user,
       password: bcrypt.hashSync(user.password, 10)
@@ -35,6 +44,18 @@ usersRouter.put(
 
     if (!user) {
       return res.sendStatus(404);
+    }
+
+    if (userData.email) {
+      if (userData.email !== user.email) {
+        const userAlreadyExists = await getUserByEmail(user.email);
+
+        if (userAlreadyExists) {
+          return res.status(400).json({
+            message: 'Email already exists'
+          })
+        }
+      }
     }
 
     if (userData.password) {
