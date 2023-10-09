@@ -1,5 +1,6 @@
 import { Request, Response, Router } from "express";
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import { validationSchemaMiddleware } from "../middleware";
 import { authSchema } from "./auth.schema";
 import { getUserByEmail } from "../users/users.repository";
@@ -19,7 +20,7 @@ authRouter.post(
       return res.sendStatus(403);
     }
 
-    if (user.password !== password) {
+    if (!bcrypt.compareSync(password, user.password)) {
       return res.sendStatus(403);
     }
 

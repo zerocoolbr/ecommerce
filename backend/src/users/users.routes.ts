@@ -1,4 +1,5 @@
 import { Request, Response, Router } from 'express';
+import bcrypt from 'bcrypt';
 import { deleteUser, getUserById, insertUser, updateUser, usersPaginated } from './users.repository';
 import { authMiddleware, validationSchemaMiddleware } from '../middleware';
 import { createUserSchema, updateUserSchema } from './users.schema';
@@ -10,7 +11,10 @@ usersRouter.post(
   validationSchemaMiddleware(createUserSchema),
   async (req: Request, res: Response) => {
     const user = req.body;
-    await insertUser(user);
+    await insertUser({
+      ...user,
+      password: bcrypt.hashSync(user.password, 10)
+    });
     res.sendStatus(201);
 });
 
@@ -20,7 +24,7 @@ usersRouter.put(
   validationSchemaMiddleware(updateUserSchema),
     async (req: Request, res: Response) => {
     const userId = Number(req.params.id);
-    const userData = req.body;
+    let userData = req.body;
     const tokenData = req.get('token-data') as any;
 
     if (tokenData.id !== userId) {
@@ -31,6 +35,13 @@ usersRouter.put(
 
     if (!user) {
       return res.sendStatus(404);
+    }
+
+    if (userData.password) {
+      userData = {
+        ...userData,
+        password: bcrypt.hashSync(userData.password,10)
+      }
     }
 
     await updateUser(userId, userData);
