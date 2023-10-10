@@ -29,7 +29,8 @@ export const getUserById = async (id: number) => {
   return await userRepository.findOne({
     where: {
       id
-    }
+    },
+    relations: ['addresses']
   });
 };
 
